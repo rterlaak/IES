@@ -1,7 +1,0 @@
-# Author information
-# ...
-#
-#
-#
-
-import socket
