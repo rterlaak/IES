@@ -1,16 +1,25 @@
 import socket
 
-host = "127.0.0.1"
+host = "localhost"
 port = 12000
 
-serverSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+serverSocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 serverSocket.bind((host, port))
+print(f"socket bound to port: {port}")
+
 serverSocket.listen(1)
+print("Socket is listening...")
 
 while True:
-    connectedClient, _ = serverSocket.accept()
+     connectedClient, clientAddress = serverSocket.accept()
+     print(f"Connected to: {clientAddress[0]} : {clientAddress[1]}")
+     decodedString = (connectedClient.recv(1024).decode())
 
-    filename = connectedClient.recv(1024).decode().strip()
+     if decodedString[-4:] == ".txt":
+          to_send = "The received file is: "+ decodedString + "\n The files in the server directory are:"
+     else:
+          to_send = "INVALID FILE FORMAT"
 
-    if not
-
+     connectedClient.send(to_send.encode())
+     connectedClient.close()

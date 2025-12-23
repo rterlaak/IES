@@ -1,7 +1,7 @@
 import socket
 import struct
 
-host = "127.0.0.1"
+host = "localhost"
 port = 12000
 
 def recvall(sock, n):
@@ -9,23 +9,29 @@ def recvall(sock, n):
     while len(data) < n:
         part = sock.recv(n - len(data))
         if not part:
-            raise ConnectionError("Connection closed early")
+            raise ConnectionError
         data += part
     return data
 
-clientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 clientSocket.connect((host, port))
 
-filename = input("Enter the filename: ")
+filename = input("Which file would you like to download: ")
 clientSocket.send(filename.encode())
 
 size = struct.unpack("!Q", recvall(clientSocket, 8))[0]
 
 if size == 0:
-    print("File not found on server")
+    print("File not found")
     clientSocket.close()
     exit()
 
 with open("downloaded_" + filename, "wb") as f:
     remaining = size
+    while remaining > 0:
+        chunk = clientSocket.recv(4096 if remaining >= 4096 else remaining)
+        f.write(chunk)
+        remaining -= len(chunk)
 
+clientSocket.close()
+print("Download complete")
