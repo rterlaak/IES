@@ -17,14 +17,14 @@ clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 clientSocket.connect((host, port))
 
 clientSocket.sendall(b"LIST")
-files_json = clientSocket.recv(1024).decode()
+files_json = clientSocket.recv(8192).decode()
 files = json.loads(files_json)
 
 for i, name in enumerate(files, 1):
     print(f"{i}. {name}")
 
-filename = input("Which file would you like to download: ")
-clientSocket.send(filename.encode())
+filename = input("Which file would you like to download:").strip()
+clientSocket.sendall(filename.encode())
 
 size = struct.unpack("!Q", recvall(clientSocket, 8))[0]
 
