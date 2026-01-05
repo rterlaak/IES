@@ -44,3 +44,32 @@ with open("downloaded_" + filename, "wb") as f:
 
 clientSocket.close()
 print("Download complete")
+
+def menu():
+    while True:
+        print("please choose from the following options:")
+        print("1. View files")
+        print("2. Download files")
+        print("3. Upload files")
+        print("4. Chat")
+        print("5. Logout")
+        choice = input("User input: ")
+        if choice == "1":
+            #code voor funtie
+
+        elif choice == "2":
+            # code voor funcite
+
+        elif choice == "3":
+            #code voor functie
+
+        elif choice == "4":
+            #code voor functie
+
+        elif choice == "5":
+            break
+        else:
+            print("Invalid input")
+
+if __name__ == "__main__":
+    menu()
