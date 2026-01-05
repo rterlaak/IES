@@ -3,7 +3,7 @@ import socket
 import struct
 import json
 
-host = "localhost"
+host = "127.0.0.1"
 port = 12000
 base_dir = "sample files"
 
@@ -30,27 +30,33 @@ while True:
             connectedClient.close()
             continue
 
-        files = [f for f in os.listdir(base_dir) if os.path.isfile(os.path.join(base_dir, f))]
+        files = [
+            f for f in os.listdir(base_dir)
+            if os.path.isfile(os.path.join(base_dir, f))
+        ]
         connectedClient.sendall(json.dumps(files).encode())
 
-        requested = connectedClient.recv(1024).decode().strip()
-        path = os.path.join(base_dir, requested)
+        while True:
+            requested = connectedClient.recv(1024).decode().strip()
+            path = os.path.join(base_dir, requested)
 
-        if not os.path.isfile(path):
-            connectedClient.sendall(struct.pack("!Q", 0))
-            connectedClient.close()
-            continue
+            if not os.path.isfile(path):
+                connectedClient.sendall(struct.pack("!Q", 0))
+                continue
 
-        size = os.path.getsize(path)
-        print(f"File size: {size}")
-        connectedClient.sendall(struct.pack("!Q", size))
+            size = os.path.getsize(path)
+            print(f"File size: {size}")
+            connectedClient.sendall(struct.pack("!Q", size))
 
-        with open(path, "rb") as f:
-            while True:
-                chunk = f.read(4096)
-                if not chunk:
-                    break
-                connectedClient.sendall(chunk)
+            with open(path, "rb") as f:
+                while True:
+                    chunk = f.read(4096)
+                    if not chunk:
+                        break
+                    connectedClient.sendall(chunk)
+
+            break
+
         connectedClient.close()
 
     except Exception as e:
