@@ -1,5 +1,6 @@
 import socket
 import struct
+import json
 
 host = "localhost"
 port = 12000

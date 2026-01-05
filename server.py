@@ -36,7 +36,7 @@ while True:
         requested = connectedClient.recv(1024).decode().strip()
         path = os.path.join(base_dir, requested)
 
-        if not os.path.isfile(filename):
+        if not os.path.isfile(path):
             connectedClient.sendall(struct.pack("!Q", 0))
             connectedClient.close()
             continue
@@ -46,17 +46,16 @@ while True:
         connectedClient.sendall(struct.pack("!Q", size))
 
         with open(path, "rb") as f:
-            while true:
+            while True:
                 chunk = f.read(4096)
                 if not chunk:
                     break
                 connectedClient.sendall(chunk)
-
         connectedClient.close()
 
     except Exception as e:
         print("Server error:", repr(e))
         try:
-            conn.close()
+            connectedClient.close()
         except:
             pass
