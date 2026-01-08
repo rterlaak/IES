@@ -3,11 +3,9 @@ import os
 import json
 import struct
 
-from server import server_dir
-
 HOST = "localhost"
 PORT = 12000
-local_dir = "local_files"
+LOCAL_DIR = "local_files"
 
 def recvall(sock, n):
     data = b""
@@ -18,34 +16,29 @@ def recvall(sock, n):
         data += part
     return data
 
-clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-clientSocket.connect((HOST, PORT))
-
 print("1 - Show local files")
 print("2 - Show server files")
 choice = input("Choose option: ").strip()
 
-paths = {
-    "1": os.path.join(local_dir, "local_files"),
-    "2": os.path.join(server_dir, "server_files")
-}
-
-path = paths.get(choice)
-
+# ===== LOCAL FILES =====
 if choice == "1":
-    if not os.path.isdir(local_dir):
+    if not os.path.isdir(LOCAL_DIR):
         print("Local folder not found")
     else:
         files = [
-            f for f in os.listdir(local_dir)
-            if os.path.isfile(os.path.join(local_dir, f))
+            f for f in os.listdir(LOCAL_DIR)
+            if os.path.isfile(os.path.join(LOCAL_DIR, f))
         ]
         print("Local files:")
         for f in files:
             print(f)
 
+# ===== SERVER FILES =====
 elif choice == "2":
-# ask server for file list
+    clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    clientSocket.connect((HOST, PORT))
+
+    # ask server for file list
     clientSocket.sendall(b"LIST")
     files_json = clientSocket.recv(8192).decode()
     files = json.loads(files_json)
