@@ -1,20 +1,7 @@
-import os
 import socket
-import struct
 
 host = "localhost"
 port = 12000
-
-def send_file(connectedClient, path):
-    size = os.path.getsize(path)
-    connectedClient.sendall(struct.pack("!Q", size))
-    with open(path, "rb") as f:
-        while true:
-            chunk = f.read(4096)
-            if not chunk:
-                break
-            connectedClient.sendall(chunk)
-
 
 serverSocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 serverSocket.bind((host, port))
@@ -24,32 +11,14 @@ serverSocket.listen(1)
 print("Socket is listening...")
 
 while True:
-    connectedClient, clientAddress = serverSocket.accept()
-    print(f"Connected to: {clientAddress[0]} : {clientAddress[1]}")
-    cmd = conn.recv(1024).decode().strip()
+     connectedClient, clientAddress = serverSocket.accept()
+     print(f"Connected to: {clientAddress[0]} : {clientAddress[1]}")
+     decodedString = (connectedClient.recv(1024).decode())
 
-    if cmd != "LIST":
-        connectedClient.close()
-        continue
+     if decodedString[-4:] == ".txt":
+          to_send = "The received file is: "+ decodedString + "\n The files in the server directory are:"
+     else:
+          to_send = "INVALID FILE FORMAT"
 
-    base_dir = "sample_files"
-    files = [f for f in os.listdir(base_dir) if os.path.isfile(os.path.join(base_dir, f))]
-    connectedClient.sendall(json.dumps(files).encode())
-
-    requested = conn.recv(1024).decode().strip()
-    path = os.path.join(base_dir, requested)
-
-    if not os.path.isfile(filename):
-        connectedClient.sendall(struct.pack("!Q", 0))
-        connectedClient.close()
-        continue
-
-    size = os.path.getsize(filename)
-    print(f"File size: {size}")
-    connectedClient.sendall(struct.pack("!Q", size))
-
-
-
-
-
-    connectedClient.close()
+     connectedClient.send(to_send.encode())
+     connectedClient.close()
