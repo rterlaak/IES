@@ -9,7 +9,7 @@ PORT = 12000
 LOCAL_DIR = "local_files"
 
 clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-clientSocket.connect((host, port))
+clientSocket.connect((HOST, PORT))
 
 sendMsg = input("Please provide the filename of the file you wish to send: ")
 
