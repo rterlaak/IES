@@ -3,21 +3,7 @@ import os
 import json
 import struct
 
-
-HOST = "localhost"
-PORT = 12000
-LOCAL_DIR = "local_files"
-
-clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-clientSocket.connect((HOST, PORT))
-
-sendMsg = input("Please provide the filename of the file you wish to send: ")
-
-clientSocket.send(sendMsg.encode())
-receivedMsg = clientSocket.recv(1024).decode()
-print("Server response:")
-print(receivedMsg)
-clientSocket.close()
+LOCAL_DIR = "sample_files" #
 
 def recvall(sock, n):
     data = b""
@@ -28,7 +14,38 @@ def recvall(sock, n):
         data += part
     return data
 
-def Menu():
+def login(HOST, PORT):
+    succes = False
+    clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    clientSocket.connect((HOST, PORT))
+    attempts_left = 3
+
+    clientSocket.send("LOGIN".encode())
+    clientSocket.recv(1024).decode()  # Ready
+
+    while attempts_left > 0:
+        username = input("Please enter your username: ")
+        entered_password = input("Please enter your password: ")
+
+        clientSocket.send(username.encode())
+        actual_password = clientSocket.recv(1024).decode()
+        if actual_password == "UNKNOWN USERNAME":
+            print("This username is unknown. Please try again.")
+            #Password was not incorrect, so we don't take an attempt
+
+        elif actual_password == entered_password:
+            succes = True
+            break
+
+        else:
+            attempts_left -= 1
+            print("Wrong password. Please try again. \n You have " + str(attempts_left) + " attempts left.")
+
+    clientSocket.send("EXIT LOGIN".encode())
+    clientSocket.close()
+    return succes
+
+def menu(HOST, PORT, LOCAL_DIR = LOCAL_DIR):
     while True:
         print("Please make your choice:")
         print("1  -  View files")
@@ -135,15 +152,20 @@ def Menu():
                 print(f"File {filename} not found in {LOCAL_DIR}")
 
         elif choice == "4":
-            #code voor Chat
+            pass #code voor Chat
 
         elif choice == "5":
             print("User logout")
             break
 
-
         else:
             print("Invalid choice")
 
-if __name__ == "__main__":
-    Menu()
+HOST = "localhost"
+PORT = 12000
+LOCAL_DIR = "sample_files"
+
+authentication = login(HOST, PORT)
+
+if authentication:
+    menu(HOST, PORT, LOCAL_DIR)

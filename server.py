@@ -1,10 +1,23 @@
 import struct
 import os
+import socket
 
 # Create a folder for server files if it doesn't exist
 SERVER_DIR = "server_files"
 if not os.path.exists(SERVER_DIR):
     os.makedirs(SERVER_DIR)
+
+passwords = {"admin": "admin", "ADMIN": "ADMIN", "username": "password"}
+
+#----------------------------------------------------------------------------------------
+
+HOST = "localhost"
+PORT = 12000
+
+serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+serverSocket.bind((HOST, PORT))
+
+serverSocket.listen()
 
 while True:
     connectedClient, clientAddress = serverSocket.accept()
@@ -36,7 +49,8 @@ while True:
                     # Receive 4096 bytes or whatever is left
                     chunk_size = 4096 if remaining >= 4096 else remaining
                     chunk = connectedClient.recv(chunk_size)
-                    if not chunk: break
+                    if not chunk:
+                        break
                     f.write(chunk)
                     remaining -= len(chunk)
 
@@ -48,8 +62,25 @@ while True:
                 os.listdir(SERVER_DIR))
             connectedClient.send(to_send.encode())
 
+        elif header == "LOGIN":
+            connectedClient.send("READY".encode())  # Tell client we are ready
+            while True:
+                username = connectedClient.recv(1024).decode()
+
+                try:
+                    actual_password = passwords[username]
+                except KeyError:
+                    if username == "EXIT LOGIN":
+                        break
+                    else:
+                        actual_password = "UNKNOWN USERNAME"
+                connectedClient.send(actual_password.encode())
+
+
         else:
             connectedClient.send("INVALID COMMAND OR FILE FORMAT".encode())
+
+
 
     except Exception as e:
         print(f"Error handling client: {e}")
