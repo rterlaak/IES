@@ -135,6 +135,7 @@ def Menu():
                 print(f"File {filename} not found in {LOCAL_DIR}")
 
         elif choice == "4":
+            print("chat")
             #code voor Chat
 
         elif choice == "5":
