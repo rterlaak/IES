@@ -8,6 +8,23 @@ HOST = "localhost"
 PORT = 12000
 LOCAL_DIR = "local_files"
 
+def recvall(sock, n):
+    data = b""
+    while len(data) < n:
+        part = sock.recv(n - len(data))
+        if not part:
+            raise ConnectionError
+        data += part
+    return data
+
+def send_msg(sock, payload: bytes):
+    sock.sendall(struct.pack("!Q", len(payload)))
+    sock.sendall(payload)
+
+def recv_msg(sock) -> bytes:
+    n = struct.unpack("!Q", recvall(sock, 8))[0]
+    return recvall(sock, n)
+
 clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 clientSocket.connect((HOST, PORT))
 
@@ -18,15 +35,6 @@ receivedMsg = clientSocket.recv(1024).decode()
 print("Server response:")
 print(receivedMsg)
 clientSocket.close()
-
-def recvall(sock, n):
-    data = b""
-    while len(data) < n:
-        part = sock.recv(n - len(data))
-        if not part:
-            raise ConnectionError
-        data += part
-    return data
 
 def Menu():
     while True:
@@ -41,31 +49,38 @@ def Menu():
 
 # ===== LOCAL FILES =====
         if choice == "1":
-            if not os.path.isdir(LOCAL_DIR):
-                print("Local folder not found")
-            else:
+            print("1 - Show local files")
+            print("2 - Show server files")
+            sort = input("Choose option: ").strip()
+
+            if sort == "1":
+                if not os.path.isdir(LOCAL_DIR):
+                    print("Local folder not found")
+                    exit()
+
                 files = [
                     f for f in os.listdir(LOCAL_DIR)
                     if os.path.isfile(os.path.join(LOCAL_DIR, f))
                     ]
-            print("Local files:")
-            for f in files:
-                print(f)
+
+                print("Local files:")
+                for f in files:
+                    print(f)
 
 # ===== SERVER FILES =====
+            elif sort == "2":
+                clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                clientSocket.connect((HOST, PORT))
+
+                # ask server for file list
+                send_msg(clientSocket,b"LIST")
+                files = json.loads(recv_msg(clientSocket).decode)
+
+                print("Server files:")
+                for f in files:
+                    print(f)
+
         elif choice == "2":
-            clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            clientSocket.connect((HOST, PORT))
-
-            # ask server for file list
-            clientSocket.sendall(b"LIST")
-            files_json = clientSocket.recv(8192).decode()
-            files = json.loads(files_json)
-
-            print("Server files:")
-            for f in files:
-                print(f)
-
             filename = input("Which file do you want to download: ").strip()
             clientSocket.sendall(filename.encode())
 
@@ -87,6 +102,7 @@ def Menu():
 
             print("Download complete")
             clientSocket.close()
+
 
         elif choice == "3":
             #code voor Upload
