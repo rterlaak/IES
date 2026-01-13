@@ -74,7 +74,7 @@ def Menu():
 
                 # ask server for file list
                 send_msg(clientSocket,b"LIST")
-                files = json.loads(recv_msg(clientSocket).decode)
+                files = json.loads(recv_msg(clientSocket).decode())
 
                 print("Server files:")
                 for f in files:
@@ -82,6 +82,9 @@ def Menu():
 
         elif choice == "2":
             filename = input("Which file do you want to download: ").strip()
+            clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            clientSocket.connect((HOST, PORT))
+
             clientSocket.sendall(filename.encode())
 
             size = struct.unpack("!Q", recvall(clientSocket, 8))[0]

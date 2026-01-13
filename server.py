@@ -1,6 +1,8 @@
+import json
 import struct
 import os
 import socket
+from email.header import Header
 
 # Create a folder for server files if it doesn't exist
 
@@ -17,7 +19,6 @@ PORT = 12000
 
 serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serverSocket.bind((HOST, PORT))
-
 serverSocket.listen()
 
 while True:
@@ -26,14 +27,14 @@ while True:
 
     try:
         # Receive the initial command or string
-        header = connectedClient.recv(1024).decode()
+        header = connectedClient.recv(1024).decode().strip()
 
         # === UPLOAD LOGIC ===
         if header == "UPLOAD":
             connectedClient.send("READY".encode())  # Tell client we are ready
 
             # Receive Filename
-            filename = connectedClient.recv(1024).decode()
+            filename = connectedClient.recv(1024).decode().strip()
             connectedClient.send("ACK".encode())  # Acknowledge filename received
 
             # Receive File Size (8 bytes)
@@ -56,6 +57,29 @@ while True:
                     remaining -= len(chunk)
 
             print(f"File {filename} received and saved.")
+
+        elif header == "LIST":
+            files = [
+                f for f in os.listdir(SERVER_DIR)
+                if os.path.isfile(os.path.join(SERVER_DIR, f))
+            ]
+            connectedClient.send(json.dumps(files).encode())
+
+            filename = connectedClient.recv(1024).decode().strip()
+            filepath = os.path.join(SERVER_DIR, filename)
+
+            if not os.path.exists(filepath):
+                connectedClient.sendall(struct.pack("!Q", 0))
+            else:
+                filesize = os.path.getsize(filepath)
+                connectedClient.sendall(struct.pack("!Q", filesize))
+
+                with open(filepath, "rb") as f:
+                    while True:
+                        chunk = f.read(4096)
+                        if not chunk:
+                            break
+                        connectedClient.sendall(chunk)
 
         # === EXISTING LOGIC (.txt check) ===
         elif header.endswith(".txt"):
