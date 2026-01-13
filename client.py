@@ -3,7 +3,10 @@ import os
 import json
 import struct
 
-LOCAL_DIR = "sample_files" #
+
+HOST = "localhost"
+PORT = 12000
+LOCAL_DIR = "local_files"
 
 def recvall(sock, n):
     data = b""
@@ -14,38 +17,26 @@ def recvall(sock, n):
         data += part
     return data
 
-def login(HOST, PORT):
-    succes = False
-    clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    clientSocket.connect((HOST, PORT))
-    attempts_left = 3
+def send_msg(sock, payload: bytes):
+    sock.sendall(struct.pack("!Q", len(payload)))
+    sock.sendall(payload)
 
-    clientSocket.send("LOGIN".encode())
-    clientSocket.recv(1024).decode()  # Ready
+def recv_msg(sock) -> bytes:
+    n = struct.unpack("!Q", recvall(sock, 8))[0]
+    return recvall(sock, n)
 
-    while attempts_left > 0:
-        username = input("Please enter your username: ")
-        entered_password = input("Please enter your password: ")
+clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+clientSocket.connect((HOST, PORT))
 
-        clientSocket.send(username.encode())
-        actual_password = clientSocket.recv(1024).decode()
-        if actual_password == "UNKNOWN USERNAME":
-            print("This username is unknown. Please try again.")
-            #Password was not incorrect, so we don't take an attempt
+sendMsg = input("Please provide the filename of the file you wish to send: ")
 
-        elif actual_password == entered_password:
-            succes = True
-            break
+clientSocket.send(sendMsg.encode())
+receivedMsg = clientSocket.recv(1024).decode()
+print("Server response:")
+print(receivedMsg)
+clientSocket.close()
 
-        else:
-            attempts_left -= 1
-            print("Wrong password. Please try again. \n You have " + str(attempts_left) + " attempts left.")
-
-    clientSocket.send("EXIT LOGIN".encode())
-    clientSocket.close()
-    return succes
-
-def menu(HOST, PORT, LOCAL_DIR = LOCAL_DIR):
+def Menu():
     while True:
         print("Please make your choice:")
         print("1  -  View files")
@@ -58,31 +49,38 @@ def menu(HOST, PORT, LOCAL_DIR = LOCAL_DIR):
 
 # ===== LOCAL FILES =====
         if choice == "1":
-            if not os.path.isdir(LOCAL_DIR):
-                print("Local folder not found")
-            else:
+            print("1 - Show local files")
+            print("2 - Show server files")
+            sort = input("Choose option: ").strip()
+
+            if sort == "1":
+                if not os.path.isdir(LOCAL_DIR):
+                    print("Local folder not found")
+                    exit()
+
                 files = [
                     f for f in os.listdir(LOCAL_DIR)
                     if os.path.isfile(os.path.join(LOCAL_DIR, f))
                     ]
-            print("Local files:")
-            for f in files:
-                print(f)
+
+                print("Local files:")
+                for f in files:
+                    print(f)
 
 # ===== SERVER FILES =====
+            elif sort == "2":
+                clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                clientSocket.connect((HOST, PORT))
+
+                # ask server for file list
+                send_msg(clientSocket,b"LIST")
+                files = json.loads(recv_msg(clientSocket).decode)
+
+                print("Server files:")
+                for f in files:
+                    print(f)
+
         elif choice == "2":
-            clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            clientSocket.connect((HOST, PORT))
-
-            # ask server for file list
-            clientSocket.sendall(b"LIST")
-            files_json = clientSocket.recv(8192).decode()
-            files = json.loads(files_json)
-
-            print("Server files:")
-            for f in files:
-                print(f)
-
             filename = input("Which file do you want to download: ").strip()
             clientSocket.sendall(filename.encode())
 
@@ -104,6 +102,7 @@ def menu(HOST, PORT, LOCAL_DIR = LOCAL_DIR):
 
             print("Download complete")
             clientSocket.close()
+
 
         elif choice == "3":
             #code voor Upload
@@ -152,20 +151,16 @@ def menu(HOST, PORT, LOCAL_DIR = LOCAL_DIR):
                 print(f"File {filename} not found in {LOCAL_DIR}")
 
         elif choice == "4":
-            pass #code voor Chat
+            print("chat")
+            #code voor Chat
 
         elif choice == "5":
             print("User logout")
             break
 
+
         else:
             print("Invalid choice")
 
-HOST = "localhost"
-PORT = 12000
-LOCAL_DIR = "sample_files"
-
-authentication = login(HOST, PORT)
-
-if authentication:
-    menu(HOST, PORT, LOCAL_DIR)
+if __name__ == "__main__":
+    Menu()

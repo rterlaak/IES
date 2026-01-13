@@ -3,6 +3,7 @@ import os
 import socket
 
 # Create a folder for server files if it doesn't exist
+
 SERVER_DIR = "server_files"
 if not os.path.exists(SERVER_DIR):
     os.makedirs(SERVER_DIR)
