@@ -17,7 +17,6 @@ def download_files_client(HOST, PORT, LOCAL_DIR):
     clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     clientSocket.connect((HOST, PORT))
 
-
     clientSocket.sendall(b"DOWNLOAD")
     files_json = clientSocket.recv(1024).decode()
     files = json.loads(files_json)
@@ -26,7 +25,6 @@ def download_files_client(HOST, PORT, LOCAL_DIR):
     clientSocket.sendall(filename.encode())
     #json_encoded_size = clientSocket.recv(1024).decode()
     size = struct.unpack("!Q", recvall(clientSocket, 8))[0]
-    print(size)
 
     if size == 0:
         print("File not found on server")
@@ -38,14 +36,13 @@ def download_files_client(HOST, PORT, LOCAL_DIR):
         remaining = size
         while remaining > 0:
             chunk = clientSocket.recv(1024 if remaining >= 1024 else remaining)
-            if not chunk:
-                print('BREAK')
-                break
             f.write(chunk)
+            if len(chunk) < 1024:
+                print('BREAK')
+                f.close()
+                break
             remaining -= len(chunk)
 
-        f.flush()
-        os.fsync(f.fileno())
         print("Download complete")
 
     clientSocket.close()

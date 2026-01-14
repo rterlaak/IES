@@ -1,18 +1,20 @@
 import os
-import client_login
+import time
+from client_login import login_client
 from client_download import download_files_client
 from view_files import view_files_client
 from client_upload import upload_client
+from client_chat import chat_client
 
 
-def menu(HOST, PORT, LOCAL_DIR):
+def menu(HOST, PORT, LOCAL_DIR, username):
     while True:
         print("Please make your choice:")
         print("1  -  View files")
         print("2  -  Download files")
         print("3  -  Upload files")
         print("4  -  Chat")
-        print("5  -  logout")
+        print("5  -  Log out")
         choice = input("User choice: ")
 
         if choice == "1":
@@ -25,8 +27,7 @@ def menu(HOST, PORT, LOCAL_DIR):
             upload_client(HOST, PORT, LOCAL_DIR)
 
         elif choice == "4":
-            print("chat")
-            #code voor Chat
+            chat_client(HOST, PORT, username)
 
         elif choice == "5":
             print("User logout")
@@ -42,7 +43,7 @@ LOCAL_DIR = "local_files"
 if not os.path.exists(LOCAL_DIR):
     os.makedirs(LOCAL_DIR)
 
-authentication = login.login_client(HOST, PORT)
+authentication, username = login_client(HOST, PORT)
 
 if authentication:
-    menu(HOST, PORT, LOCAL_DIR)
+    menu(HOST, PORT, LOCAL_DIR, username)
