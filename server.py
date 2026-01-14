@@ -45,6 +45,14 @@ class ClientThread(Thread):
             elif header == "CHAT":
                 chat_server(self.udpSocket, self.SERVER_DIR)
 
+            elif header == "LIST":
+                files = [
+                    f for f in os.listdir(self.SERVER_DIR)
+                    if os.path.isfile(os.path.join(self.SERVER_DIR, f))
+                ]
+                self.connectedClient.sendall(json.dumps(files).encode())
+                self.connectedClient.close()
+
             else:
                 self.connectedClient.send("INVALID COMMAND OR FILE FORMAT".encode())
 
