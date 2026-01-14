@@ -36,14 +36,22 @@ while True:
         # === UPLOAD LOGIC ===
         if header == "UPLOAD":
             upload_server(connectedClient, SERVER_DIR)
-            break
+
 
         elif header == "DOWNLOAD":
             download_server(connectedClient, SERVER_DIR )
-            break
+
 
         elif header == "LOGIN":
             login_server(connectedClient, clientAddress, SERVER_DIR)
+
+        elif header == "LIST":
+            files = [
+                f for f in os.listdir(SERVER_DIR)
+                if os.path.isfile(os.path.join(SERVER_DIR, f))
+            ]
+            connectedClient.sendall(json.dumps(files).encode())
+            connectedClient.close()
 
         else:
             connectedClient.send("INVALID COMMAND OR FILE FORMAT".encode())

@@ -42,7 +42,7 @@ LOCAL_DIR = "local_files"
 if not os.path.exists(LOCAL_DIR):
     os.makedirs(LOCAL_DIR)
 
-authentication = login.login_client(HOST, PORT)
+authentication = client_login.login_client(HOST, PORT)
 
 if authentication:
     menu(HOST, PORT, LOCAL_DIR)
