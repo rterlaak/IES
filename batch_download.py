@@ -25,7 +25,7 @@ def download_batch(HOST, PORT, LOCAL_DIR, files_to_download = None):
         files_json = clientSocket.recv(1024).decode()
         available_files = json.loads(files_json)
         clientSocket.close()
-        print("Available files on server: {available_files}")
+        print(f"Available files on server: {available_files}")
 
         #which files to download
         if files_to_download is None:
@@ -33,10 +33,10 @@ def download_batch(HOST, PORT, LOCAL_DIR, files_to_download = None):
         #download each file
         for filename in files_to_download:
             if filename not in available_files:
-                print("File '{filename}' not found on server, skipping...")
+                print(f"File '{filename}' not found on server, skipping...")
                 continue
 
-            print("Downloading '{filename}'...")
+            print(f"Downloading '{filename}'...")
 
             clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             clientSocket.connect((HOST, PORT))
