@@ -28,4 +28,4 @@ def login_client(HOST, PORT):
 
     clientSocket.send("EXIT LOGIN".encode())
     clientSocket.close()
-    return succes
+    return succes, username

@@ -4,7 +4,6 @@ import struct
 import socket
 
 def download_server(connectedClient, SERVER_DIR):
-
     files = [
         f for f in os.listdir(SERVER_DIR)
         if os.path.isfile(os.path.join(SERVER_DIR, f))
@@ -23,9 +22,12 @@ def download_server(connectedClient, SERVER_DIR):
         with open(filepath, "rb") as f:
             while True:
                 chunk = f.read(1024)
-
                 if not chunk:
+                    print("Download_server() break statement reached")
+                    f.close()
                     break
                 connectedClient.sendall(chunk)
 
+
     connectedClient.close()
+    return
