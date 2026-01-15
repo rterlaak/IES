@@ -9,18 +9,9 @@ def recvall(sock, n):
     while len(data) < n:
         part = sock.recv(n - len(data))
         if not part:
-            raise ConnectionError
+            raise ConnectionError("error in recvall")
         data += part
     return data
-
-def send_msg(sock, payload: bytes):
-    sock.sendall(struct.pack("!Q", len(payload)))
-    sock.sendall(payload)
-
-def recv_msg(sock) -> bytes:
-    n = struct.unpack("!Q", recvall(sock, 8))[0]
-    return recvall(sock, n)
-
 
 def view_files_client(HOST, PORT, LOCAL_DIR):
     clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -29,10 +20,12 @@ def view_files_client(HOST, PORT, LOCAL_DIR):
     print("2 - Show server files")
     sort = input("Choose option: ").strip()
 
+    # ===== LOCAL FILES =====
     if sort == "1":
         if not os.path.isdir(LOCAL_DIR):
             print("Local folder not found")
-            exit()
+            clientSocket.close()
+            return
 
         files = [
             f for f in os.listdir(LOCAL_DIR)
@@ -45,11 +38,10 @@ def view_files_client(HOST, PORT, LOCAL_DIR):
 
     # ===== SERVER FILES =====
     elif sort == "2":
-
-        # ask server for file list
-        send_msg(clientSocket, b"LIST")
-        files = json.loads(recv_msg(clientSocket).decode)
-
+        clientSocket.sendall(b"LIST")
+        files_json = clientSocket.recv(1024).decode()
+        files = json.loads(files_json)
         print("Server files:")
         for f in files:
             print(f)
+    clientSocket.close()

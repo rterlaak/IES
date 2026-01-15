@@ -31,3 +31,4 @@ def upload_server(connectedClient, SERVER_DIR):
         os.fsync(f.fileno())
         print(f"File {filename} received and saved.")
     connectedClient.close()
+    return
