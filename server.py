@@ -56,6 +56,8 @@ while True:
         else:
             connectedClient.send("INVALID COMMAND OR FILE FORMAT".encode())
 
+        connectedClient.close()
+
 
     except Exception as e:
         print(f"Error handling client: {e}")

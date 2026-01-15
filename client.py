@@ -1,5 +1,6 @@
 import os
 import client_login
+from batch_download import download_batch
 from client_download import download_files_client
 from view_files import view_files_client
 from client_upload import upload_client
@@ -12,6 +13,7 @@ def menu(HOST, PORT, LOCAL_DIR):
         print("2  -  Download files")
         print("3  -  Upload files")
         print("4  -  Chat")
+        print("6  -  Batch download")
         print("5  -  logout")
         choice = input("User choice: ")
 
@@ -27,6 +29,9 @@ def menu(HOST, PORT, LOCAL_DIR):
         elif choice == "4":
             print("chat")
             #code voor Chat
+
+        elif choice == "6":
+            download_batch(HOST, PORT, LOCAL_DIR)
 
         elif choice == "5":
             print("User logout")
