@@ -23,7 +23,6 @@ def download_server(connectedClient, SERVER_DIR):
             while True:
                 chunk = f.read(1024)
                 if not chunk:
-                    print("Download_server() break statement reached")
                     f.close()
                     break
                 connectedClient.sendall(chunk)
