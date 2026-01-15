@@ -33,8 +33,8 @@ def view_files_client(HOST, PORT, LOCAL_DIR):
         ]
 
         print("Local files:")
-        for f in files:
-            print(f)
+        for counter, f in enumerate(files):
+            print(counter, ") ", f)
 
     # ===== SERVER FILES =====
     elif sort == "2":
@@ -42,6 +42,6 @@ def view_files_client(HOST, PORT, LOCAL_DIR):
         files_json = clientSocket.recv(1024).decode()
         files = json.loads(files_json)
         print("Server files:")
-        for f in files:
-            print(f)
+        for counter, f in enumerate(files):
+            print(counter, ") ", f)
     clientSocket.close()

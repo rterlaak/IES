@@ -36,6 +36,10 @@ def download_batch(HOST, PORT, LOCAL_DIR, files_to_download = None):
                 print(f"File '{filename}' not found on server, skipping...")
                 continue
 
+            file_path = os.path.join(LOCAL_DIR, filename)
+            if os.path.exists(file_path):
+                print(f"Skipping {filename}, already exists locally")
+                continue
             print(f"Downloading '{filename}'...")
 
             clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -76,6 +80,6 @@ def download_batch(HOST, PORT, LOCAL_DIR, files_to_download = None):
         print(f"Error during batch download: {e}")
 
     elapsed_time = time.time() - start_time
-    print(f"Total download time: {elapsed_time} seconds")
+    print(f"Total download time: {elapsed_time:.3f} seconds")
 
 
