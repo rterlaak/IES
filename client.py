@@ -1,5 +1,5 @@
 import os
-import client_login
+from  client_login import login_client
 from client_download import download_files_client
 from view_files import view_files_client
 from client_upload import upload_client
@@ -42,7 +42,7 @@ LOCAL_DIR = "local_files"
 if not os.path.exists(LOCAL_DIR):
     os.makedirs(LOCAL_DIR)
 
-authentication = login.login_client(HOST, PORT)
+authentication = login_client(HOST, PORT)
 
 if authentication:
     menu(HOST, PORT, LOCAL_DIR)
