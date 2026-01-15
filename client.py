@@ -14,8 +14,8 @@ def menu(HOST, PORT, LOCAL_DIR, username):
         print("2  -  Download files")
         print("3  -  Upload files")
         print("4  -  Chat")
-        print("6  -  Batch download")
         print("5  -  Log out")
+        print("6  -  Batch download")
         choice = input("User choice: ")
 
         if choice == "1":
