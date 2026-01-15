@@ -67,7 +67,6 @@ class ClientThread(Thread):
 
 HOST = "localhost"
 PORT = 12000
-passwords = {"admin": "admin", "ADMIN": "ADMIN", "username": "password"}
 
 serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serverSocket.bind((HOST, PORT))

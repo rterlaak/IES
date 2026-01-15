@@ -1,31 +1,38 @@
 import socket
 def login_client(HOST, PORT):
     succes = False
+    username = None
     clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     clientSocket.connect((HOST, PORT))
     attempts_left = 3
 
-    clientSocket.send("LOGIN".encode())
+    clientSocket.sendall(b"LOGIN")
     clientSocket.recv(1024).decode()  # Ready
 
     while attempts_left > 0:
-        username = input("Please enter your username: ")
-        entered_password = input("Please enter your password: ")
+        username = input("Please enter your username: ").strip()
+        entered_password = input("Please enter your password: ").strip()
 
-        clientSocket.send(username.encode())
-        actual_password = clientSocket.recv(1024).decode()
-        if actual_password == "UNKNOWN USERNAME":
-            print("This username is unknown. Please try again.")
-            #Password was not incorrect, so we don't take an attempt
+        clientSocket.sendall(username.encode())
 
-        elif actual_password == entered_password:
-            succes = True
-            break
+        actual_password = clientSocket.recv(1024).decode().strip()
+        if actual_password == "PASSWORD":
+            clientSocket.sendall(entered_password.encode())
+            result = clientSocket.recv(1024).decode().strip()
 
+            if result == "UNKWNOWN USERNAME":
+                print("wrong username, please try again.")
+                # Password was not incorrect, so we don't take an attempt
+            elif result == "OK":
+                succes = True
+                break
+            else:
+                attempts_left -= 1
+                print("Wrong password. Please try again. \n You have " + str(attempts_left) + " attempts left.")
         else:
             attempts_left -= 1
-            print("Wrong password. Please try again. \n You have " + str(attempts_left) + " attempts left.")
+            print("Unexpected server response. Please try again.")
 
-    clientSocket.send("EXIT LOGIN".encode())
+    clientSocket.send(B"EXIT LOGIN")
     clientSocket.close()
     return succes, username
