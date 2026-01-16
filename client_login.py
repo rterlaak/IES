@@ -9,7 +9,7 @@ def login_client(HOST, PORT):
     clientSocket.sendall(b"LOGIN")
     clientSocket.recv(1024).decode()  # Ready
 
-    while attempts_left > 0:
+    while attempts_left > 0: #counts password attempts
         username = input("Please enter your username: ").strip()
         entered_password = input("Please enter your password: ").strip()
 
@@ -23,7 +23,7 @@ def login_client(HOST, PORT):
             if result == "UNKWNOWN USERNAME":
                 print("wrong username, please try again.")
                 # Password was not incorrect, so we don't take an attempt
-            elif result == "OK":
+            elif result == "OK": #receives signal from server that login is correct
                 succes = True
                 break
             else:

@@ -33,19 +33,19 @@ class ClientThread(Thread):
             print(f"HEADER RECEIVED: {repr(header)}")
 
             # === UPLOAD LOGIC ===
-            if header == "UPLOAD":
+            if header == "UPLOAD": #starts server side upload
                 upload_server(self.connectedClient, SERVER_DIR)
 
-            elif header == "DOWNLOAD":
+            elif header == "DOWNLOAD": #starts server side download
                 download_server(self.connectedClient, SERVER_DIR )
 
-            elif header == "LOGIN":
+            elif header == "LOGIN": #starts server side login
                 login_server(self.connectedClient, self.clientAddress, SERVER_DIR)
 
-            elif header == "CHAT":
+            elif header == "CHAT": #starts server side chat
                 chat_server(self.udpSocket, self.SERVER_DIR)
 
-            elif header == "LIST":
+            elif header == "LIST": #starts server side batch download
                 files = [
                     f for f in os.listdir(self.SERVER_DIR)
                     if os.path.isfile(os.path.join(self.SERVER_DIR, f))

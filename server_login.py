@@ -7,6 +7,7 @@ def load_credentials(path: str) -> dict[str, str]:
     account= {}
     if not os.path.exists(path):
         return account
+    #reads accounts from credentials.txt
     with open(path) as file:
         for raw in file:
             line = raw.strip()
@@ -17,7 +18,7 @@ def load_credentials(path: str) -> dict[str, str]:
     return account
 
 
-def login_server(connectedClient, clientAddress, SERVER_DIR):
+def login_server(connectedClient, clientAddress,):
     credentials = load_credentials(CREDENTIALS_FILE)
     connectedClient.send(b"READY")  # Tell client we are ready
     while True:
@@ -28,7 +29,7 @@ def login_server(connectedClient, clientAddress, SERVER_DIR):
             break
         connectedClient.send(b"PASSWORD")
         entered_password = connectedClient.recv(1024).decode().strip()
-
+        #checks if username and/or password is correct
         if username not in credentials:
             connectedClient.send(b"UNKNOWN USERNAME")
         elif credentials[username] == entered_password:

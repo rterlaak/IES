@@ -8,6 +8,7 @@ from client_upload import upload_client
 
 
 def menu(HOST, PORT, LOCAL_DIR, username):
+    #menu shown to user
     while True:
         print("Please make your choice:")
         print("1  -  View files")
@@ -18,22 +19,22 @@ def menu(HOST, PORT, LOCAL_DIR, username):
         print("6  -  Batch download")
         choice = input("User choice: ")
 
-        if choice == "1":
+        if choice == "1": #opens view files
             view_files_client(HOST, PORT, LOCAL_DIR)
 
-        elif choice == "2":
+        elif choice == "2": #opens download
             download_files_client(HOST, PORT, LOCAL_DIR)
 
-        elif choice == "3":
+        elif choice == "3": #opends upload
             upload_client(HOST, PORT, LOCAL_DIR)
 
-        elif choice == "4":
+        elif choice == "4": #opens chat
             chat_client(HOST, PORT, username)
 
-        elif choice == "6":
+        elif choice == "6": #starts batch download
             download_batch(HOST, PORT, LOCAL_DIR)
 
-        elif choice == "5":
+        elif choice == "5": #closes client
             print("User Log out")
             break
 
@@ -43,11 +44,11 @@ def menu(HOST, PORT, LOCAL_DIR, username):
 
 HOST = "localhost"
 PORT = 12000
-LOCAL_DIR = "local_files"
+LOCAL_DIR = "local_files" #file for local files
 if not os.path.exists(LOCAL_DIR):
     os.makedirs(LOCAL_DIR)
 
 authentication, username = login_client(HOST, PORT)
 
-if authentication:
+if authentication: #if login is correct, starts menu
     menu(HOST, PORT, LOCAL_DIR, username)

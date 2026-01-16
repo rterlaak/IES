@@ -19,11 +19,10 @@ def download_files_client(HOST, PORT, LOCAL_DIR):
 
     clientSocket.sendall(b"DOWNLOAD")
     files_json = clientSocket.recv(1024).decode()
-    files = json.loads(files_json)
+    files = json.loads(files_json) #loads files from server
     print("Available", files)
     filename = input("Which file do you want to download: ").strip()
     clientSocket.sendall(filename.encode())
-    #json_encoded_size = clientSocket.recv(1024).decode()
     size = struct.unpack("!Q", recvall(clientSocket, 8))[0]
 
     if size == 0:
@@ -34,7 +33,7 @@ def download_files_client(HOST, PORT, LOCAL_DIR):
 
     with open(file_path, "wb") as f:
         remaining = size
-        while remaining > 0:
+        while remaining > 0:    #checks if it has received all packages
             chunk = clientSocket.recv(1024 if remaining >= 1024 else remaining)
             f.write(chunk)
             if len(chunk) < 1024:
